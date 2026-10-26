@@ -1,94 +1,135 @@
 import Link from "next/link";
+import { listFactions } from "@/lib/data/factions";
+import { saveDraftAction, sendToReviewAction } from "./actions";
 
-export default function EditorPage() {
+export default async function EditorPage() {
+  const factions = await listFactions();
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="font-bold text-slate-900 hover:text-indigo-600">
-            ← Повернутися до каталогу
+    <main className="max-w-4xl mx-auto p-6 space-y-6">
+      <header className="flex items-center justify-between border-b pb-4 text-sm">
+        <Link href="/" className="text-indigo-600 font-medium hover:underline">
+          ← Повернутися до каталогу
+        </Link>
+        <div className="flex gap-4">
+          <Link href="/factions" className="text-slate-700 hover:underline">
+            Фракції
           </Link>
-          <div className="flex gap-3 text-sm">
-            <Link href="/factions" className="text-slate-600 hover:text-slate-900">Фракції</Link>
-            <Link href="/moderation" className="text-slate-600 hover:text-slate-900">Модерація</Link>
-          </div>
+          <Link href="/moderation" className="text-slate-700 hover:underline">
+            Модерація
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold">Редактор чернетки статті (Ф3, Ф4, Ф5)</h1>
-            <p className="text-sm text-slate-500">Створіть або оновіть матеріал перед перевіркою</p>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold mb-1">Заголовок статті (Ф3)</label>
-              <input
-                type="text"
-                defaultValue="Літопис Прикордонної Фортеці"
-                className="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-white text-slate-900 focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold mb-1">Категорія матеріалу</label>
-              <select className="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-white text-slate-900 focus:ring-2 focus:ring-indigo-500">
-                <option>Локація</option>
-                <option>Персонаж</option>
-                <option>Подія</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold mb-2">Прив&apos;язка до фракцій (Ф5)</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                <label className="flex items-center gap-2 p-2 border rounded-lg hover:bg-slate-50 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="rounded text-indigo-600" /> Північні Землі
-                </label>
-                <label className="flex items-center gap-2 p-2 border rounded-lg hover:bg-slate-50 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="rounded text-indigo-600" /> Південний Союз
-                </label>
-                <label className="flex items-center gap-2 p-2 border rounded-lg hover:bg-slate-50 cursor-pointer">
-                  <input type="checkbox" className="rounded text-indigo-600" /> Орден Хранителів
-                </label>
-              </div>
-            </div>
-
-            <div className="border-2 border-dashed border-slate-300 p-6 rounded-xl bg-slate-50 text-center space-y-2">
-              <p className="text-sm font-semibold text-slate-800">Завантаження файлу у Supabase Storage (Ф4)</p>
-              <p className="text-xs text-slate-500">
-                Формати: PNG, JPG, WEBP до 5 МБ. Файли чернеток захищені від стороннього доступу.
-              </p>
-              <button type="button" className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium rounded-lg transition shadow-sm">
-                Обрати файл на диску
-              </button>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold mb-1">Текст опису</label>
-              <textarea
-                className="w-full border border-slate-300 rounded-lg p-3 text-sm bg-white text-slate-900 focus:ring-2 focus:ring-indigo-500"
-                rows={5}
-                defaultValue="Опис споруди, збудованої для захисту караванних шляхів..."
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
-            <button type="button" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition shadow-sm">
-              Зберегти чернетку
-            </button>
-            <button type="button" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition shadow-sm">
-              Надіслати на перевірку
-            </button>
-            <button type="button" className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-medium transition">
-              Повернути в чернетки
-            </button>
-          </div>
+      <section className="p-6 border rounded-xl bg-white space-y-5">
+        <div>
+          <h1 className="text-2xl font-bold">
+            Редактор чернетки статті (Ф3, Ф4, Ф5)
+          </h1>
+          <p className="text-sm text-slate-600">
+            Створіть або оновіть матеріал перед перевіркою
+          </p>
         </div>
-      </main>
-    </div>
+
+        <form action={saveDraftAction} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Заголовок статті (Ф3)</label>
+            <input
+              name="title"
+              defaultValue="Літопис Прикордонної Фортеці"
+              required
+              className="w-full border rounded-lg px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Категорія матеріалу</label>
+            <select
+              name="category"
+              defaultValue="локація"
+              className="w-full border rounded-lg px-3 py-2 text-sm bg-white"
+            >
+              <option value="локація">Локація</option>
+              <option value="персонаж">Персонаж</option>
+              <option value="подія">Подія</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Прив&apos;язка до фракцій (Ф5)</label>
+            {factions.length === 0 ? (
+              <div className="p-4 border rounded-lg bg-amber-50 text-amber-900 text-sm space-y-1">
+                <p>Для вибору прив&apos;язки ще не створено жодної фракції у довіднику</p>
+                <Link href="/factions" className="underline text-indigo-700 block">
+                  Перейти до довідника фракцій
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                {factions.map((fac) => (
+                  <label
+                    key={fac.id}
+                    className="flex items-center gap-2 p-3 border rounded-lg text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      name="factionIds"
+                      value={fac.id}
+                      defaultChecked={fac.id === "fac-1" || fac.id === "fac-2"}
+                    />
+                    <span>{fac.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="p-5 border border-dashed rounded-xl bg-slate-50 text-center space-y-2">
+            <p className="text-sm font-semibold">
+              Завантаження файлу у Supabase Storage (Ф4)
+            </p>
+            <p className="text-xs text-slate-500">
+              Формати: PNG, JPG, WEBP до 5 МБ. Файли чернеток захищені від стороннього доступу.
+            </p>
+            <input
+              name="fileName"
+              defaultValue="border-fortress-map.webp"
+              placeholder="Назва файлу ілюстрації (напр. map.webp)"
+              className="border rounded-lg px-3 py-1.5 text-xs bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Текст опису</label>
+            <textarea
+              name="content"
+              defaultValue="Опис споруди, збудованої для захисту караванних шляхів..."
+              required
+              rows={4}
+              className="w-full border rounded-lg p-3 text-sm"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium"
+            >
+              Зберегти чернетку (Ф3.1)
+            </button>
+          </div>
+        </form>
+
+        <form action={sendToReviewAction} className="pt-2 border-t">
+          <input type="hidden" name="articleId" value="5" />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-sm font-medium"
+          >
+            Надіслати на перевірку Головному редактору (Ф3.2)
+          </button>
+        </form>
+      </section>
+    </main>
   );
 }

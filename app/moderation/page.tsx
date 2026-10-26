@@ -1,62 +1,163 @@
 import Link from "next/link";
+import { listModerationQueue } from "@/lib/data/articles";
+import { listComplaints } from "@/lib/data/complaints";
+import { moderateArticleAction, resolveComplaintAction } from "./actions";
 
-export default function ModerationPage() {
+export default async function ModerationPage() {
+  const [queue, complaints] = await Promise.all([
+    listModerationQueue(),
+    listComplaints(true),
+  ]);
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b bg-white shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="font-bold text-slate-900 hover:text-indigo-600">
-            ← Назад до каталогу
+    <main className="max-w-5xl mx-auto p-6 space-y-6">
+      <header className="flex items-center justify-between border-b pb-4 text-sm">
+        <Link href="/" className="font-medium hover:underline">
+          ← Назад до каталогу
+        </Link>
+        <div className="flex gap-4">
+          <Link href="/editor" className="text-slate-700 hover:underline">
+            Редактор
           </Link>
-          <div className="flex gap-3 text-sm">
-            <Link href="/editor" className="text-slate-600 hover:text-slate-900">Редактор</Link>
-            <Link href="/factions" className="text-slate-600 hover:text-slate-900">Фракції</Link>
-          </div>
+          <Link href="/factions" className="text-slate-700 hover:underline">
+            Фракції
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Панель модерації (Ф6, Ф7)</h1>
-          <p className="text-sm text-slate-500">Затвердження матеріалів та розгляд звернень</p>
+      <div>
+        <h1 className="text-2xl font-bold">Панель модерації (Ф6, Ф7)</h1>
+        <p className="text-sm text-slate-600">
+          Затвердження матеріалів та розгляд звернень
+        </p>
+      </div>
+
+      {queue.length === 0 && complaints.length === 0 ? (
+        <div className="p-6 border rounded-xl bg-amber-50 text-amber-900 space-y-2">
+          <p className="font-medium">
+            Черга матеріалів на перевірці та список відкритих скарг порожні — усі звернення опрацьовано
+          </p>
+          <Link href="/" className="underline text-indigo-700 text-sm block">
+            Повернутися до каталогу
+          </Link>
         </div>
+      ) : (
+        <>
+          <section className="p-6 border rounded-xl bg-white space-y-4">
+            <h2 className="font-bold">Черга матеріалів на перевірці (Ф6)</h2>
+            {queue.length === 0 ? (
+              <p className="text-sm text-slate-500">
+                Статей у статусі «на перевірці» наразі немає.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {queue.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 border rounded-lg flex items-center justify-between gap-4"
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        {item.title} (автор: {item.authorName})
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Категорія: {item.category} · Статус: {item.status}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <form action={moderateArticleAction}>
+                        <input type="hidden" name="articleId" value={item.id} />
+                        <input
+                          type="hidden"
+                          name="status"
+                          value="опубліковано"
+                        />
+                        <button
+                          type="submit"
+                          className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium"
+                        >
+                          Опублікувати
+                        </button>
+                      </form>
+                      <form action={moderateArticleAction}>
+                        <input type="hidden" name="articleId" value={item.id} />
+                        <input type="hidden" name="status" value="чернетка" />
+                        <button
+                          type="submit"
+                          className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-medium"
+                        >
+                          Повернути в чернетки
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
 
-        <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-slate-900">Черга матеріалів на перевірці (Ф6)</h2>
-          <div className="border border-slate-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold text-sm">Хроніки Західного Долу (автор: Співавтор)</p>
-              <p className="text-xs text-slate-500 mt-0.5">Категорія: Локація · Фракція: Південний Союз · Статус: на перевірці</p>
-            </div>
-            <div className="flex gap-2">
-              <button type="button" className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg shadow-sm">
-                Опублікувати
-              </button>
-              <button type="button" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium rounded-lg shadow-sm">
-                Повернути в чернетки
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-slate-900">Відкриті скарги користувачів (Ф7)</h2>
-          <div className="border border-slate-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold text-sm">Скарга на статтю #1: Хроніки Першої Епохи</p>
-              <p className="text-xs text-slate-500 mt-0.5">Причина: Неточність у назві гірського перевалу · Статус: відкрита</p>
-            </div>
-            <div className="flex gap-2">
-              <button type="button" className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg shadow-sm">
-                Прийняти (зняти в чернетки)
-              </button>
-              <button type="button" className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium rounded-lg">
-                Відхилити
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
+          <section className="p-6 border rounded-xl bg-white space-y-4">
+            <h2 className="font-bold">Відкриті скарги користувачів (Ф7)</h2>
+            {complaints.length === 0 ? (
+              <p className="text-sm text-slate-500">
+                Відкритих скарг немає.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {complaints.map((comp) => (
+                  <div
+                    key={comp.id}
+                    className="p-4 border rounded-lg flex items-center justify-between gap-4"
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        Скарга на статтю #{comp.articleId}: {comp.articleTitle}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Причина: {comp.reason} · Статус: {comp.status}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <form action={resolveComplaintAction}>
+                        <input
+                          type="hidden"
+                          name="complaintId"
+                          value={comp.id}
+                        />
+                        <input type="hidden" name="decision" value="вирішено" />
+                        <button
+                          type="submit"
+                          className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium"
+                        >
+                          Прийняти (зняти в чернетки)
+                        </button>
+                      </form>
+                      <form action={resolveComplaintAction}>
+                        <input
+                          type="hidden"
+                          name="complaintId"
+                          value={comp.id}
+                        />
+                        <input
+                          type="hidden"
+                          name="decision"
+                          value="відхилено"
+                        />
+                        <button
+                          type="submit"
+                          className="px-3 py-1.5 border bg-slate-100 rounded-lg text-xs font-medium"
+                        >
+                          Відхилити
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </main>
   );
 }
