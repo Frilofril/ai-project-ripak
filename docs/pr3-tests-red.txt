@@ -1,0 +1,115 @@
+
+> aidevcourse@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /workspaces/ai-project-practice-2
+
+ ❯ tests/wiki.test.ts (5 tests | 5 failed) 20ms
+   × спільна вікі світу > порожній заголовок або опис не створює чернетку статті 10ms
+     → promise resolved "{ id: '', title: '   ', …(6) }" instead of rejecting
+   × спільна вікі світу > після публікації редактором стаття з'являється у каталозі опублікованих 1ms
+     → expected [] to include 'Цитадель Північного Перевалу'
+   × спільна вікі світу > завантаження нової ілюстрації перезаписує посилання на файл у статті 1ms
+     → expected '' to be 'storage://wiki-media/map-citadel-v2.w…' // Object.is equality
+   × спільна вікі світу > видалення фракції каскадно прибирає її мітку з прив'язаних статей 4ms
+     → expected [ 'fac-temp' ] to not include 'fac-temp'
+   × спільна вікі світу > прийняття скарги повертає статтю в чернетки і закриває всі скарги на неї 2ms
+     → expected 'відкрита' to be 'вирішено' // Object.is equality
+ ✓ tests/smoke.test.ts (1 test) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/wiki.test.ts > спільна вікі світу > порожній заголовок або опис не створює чернетку статті
+AssertionError: promise resolved "{ id: '', title: '   ', …(6) }" instead of rejecting
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "authorName": "Співавтор",[39m
+[31m+   "category": "локація",[39m
+[31m+   "content": "",[39m
+[31m+   "factionIds": [],[39m
+[31m+   "id": "",[39m
+[31m+   "imageUrl": "",[39m
+[31m+   "status": "чернетка",[39m
+[31m+   "title": "   ",[39m
+[2m  }[22m
+
+ ❯ tests/wiki.test.ts:25:5
+     23|         factionIds: [],
+     24|       })
+     25|     ).rejects.toThrow();
+       |     ^
+     26|   });
+     27| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/wiki.test.ts > спільна вікі світу > після публікації редактором стаття з'являється у каталозі опублікованих
+AssertionError: expected [] to include 'Цитадель Північного Перевалу'
+ ❯ tests/wiki.test.ts:39:29
+     37| 
+     38|     const publishedTitles = (await listPublishedArticles()).map((a) =>…
+     39|     expect(publishedTitles).toContain("Цитадель Північного Перевалу");
+       |                             ^
+     40|   });
+     41| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/wiki.test.ts > спільна вікі світу > завантаження нової ілюстрації перезаписує посилання на файл у статті
+AssertionError: expected '' to be 'storage://wiki-media/map-citadel-v2.w…' // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- storage://wiki-media/map-citadel-v2.webp[39m
+
+ ❯ tests/wiki.test.ts:55:30
+     53|       2.4
+     54|     );
+     55|     expect(updated.imageUrl).toBe("storage://wiki-media/map-citadel-v2…
+       |                              ^
+     56|   });
+     57| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/wiki.test.ts > спільна вікі світу > видалення фракції каскадно прибирає її мітку з прив'язаних статей
+AssertionError: expected [ 'fac-temp' ] to not include 'fac-temp'
+ ❯ tests/wiki.test.ts:73:57
+     71|     await deleteFaction(faction.id);
+     72|     const afterDelete = await getArticle(article.id);
+     73|     expect(afterDelete?.factionIds ?? [faction.id]).not.toContain(fact…
+       |                                                         ^
+     74|   });
+     75| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/wiki.test.ts > спільна вікі світу > прийняття скарги повертає статтю в чернетки і закриває всі скарги на неї
+AssertionError: expected 'відкрита' to be 'вирішено' // Object.is equality
+
+Expected: [32m"в[7mирішено[27m"[39m
+Received: [31m"в[7mідкрита[27m"[39m
+
+ ❯ tests/wiki.test.ts:95:29
+     93| 
+     94|     const resolved = await resolveComplaint(c1.id, "вирішено");
+     95|     expect(resolved.status).toBe("вирішено");
+       |                             ^
+     96| 
+     97|     const updatedArticle = await getArticle(draft.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  5 failed | 1 passed (6)
+   Start at  12:21:15
+   Duration  585ms (transform 94ms, setup 0ms, collect 101ms, tests 27ms, environment 0ms, prepare 143ms)
+
