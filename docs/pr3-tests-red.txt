@@ -1,22 +1,18 @@
 
-> aidevcourse@0.1.0 test
-> vitest run
-
-
  RUN  v3.2.7 /workspaces/ai-project-practice-2
 
- ❯ tests/wiki.test.ts (5 tests | 5 failed) 20ms
-   × спільна вікі світу > порожній заголовок або опис не створює чернетку статті 10ms
+ ❯ tests/wiki.test.ts (5 tests | 5 failed) 31ms
+   × спільна вікі світу > порожній заголовок або опис не створює чернетку статті 20ms
      → promise resolved "{ id: '', title: '   ', …(6) }" instead of rejecting
-   × спільна вікі світу > після публікації редактором стаття з'являється у каталозі опублікованих 1ms
+   × спільна вікі світу > після публікації редактором стаття з'являється у каталозі опублікованих 2ms
      → expected [] to include 'Цитадель Північного Перевалу'
-   × спільна вікі світу > завантаження нової ілюстрації перезаписує посилання на файл у статті 1ms
+   × спільна вікі світу > завантаження нової ілюстрації перезаписує посилання на файл у статті 2ms
      → expected '' to be 'storage://wiki-media/map-citadel-v2.w…' // Object.is equality
-   × спільна вікі світу > видалення фракції каскадно прибирає її мітку з прив'язаних статей 4ms
+   × спільна вікі світу > видалення фракції каскадно прибирає її мітку з прив'язаних статей 1ms
      → expected [ 'fac-temp' ] to not include 'fac-temp'
    × спільна вікі світу > прийняття скарги повертає статтю в чернетки і закриває всі скарги на неї 2ms
      → expected 'відкрита' to be 'вирішено' // Object.is equality
- ✓ tests/smoke.test.ts (1 test) 7ms
+ ✓ tests/smoke.test.ts (1 test) 3ms
 
 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
 
@@ -110,6 +106,6 @@ Received: [31m"в[7mідкрита[27m"[39m
 
  Test Files  1 failed | 1 passed (2)
       Tests  5 failed | 1 passed (6)
-   Start at  12:21:15
-   Duration  585ms (transform 94ms, setup 0ms, collect 101ms, tests 27ms, environment 0ms, prepare 143ms)
+   Start at  12:51:23
+   Duration  803ms (transform 120ms, setup 0ms, collect 134ms, tests 34ms, environment 0ms, prepare 216ms)
 
