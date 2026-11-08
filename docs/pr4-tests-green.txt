@@ -1,0 +1,102 @@
+
+> aidevcourse@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /workspaces/ai-project-practice-2
+
+ ❯ tests/db-articles.test.ts (5 tests | 5 failed) 17ms
+   × статті та фракції вікі в базі даних Supabase > створена чернетка статті читається назад із бази за id 8ms
+     → Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+   × статті та фракції вікі в базі даних Supabase > видалена стаття не знаходиться в базі 1ms
+     → Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+   × статті та фракції вікі в базі даних Supabase > порожній заголовок статті не приймається базою 6ms
+     → Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+   × статті та фракції вікі в базі даних Supabase > оновлення статусу статті на «опубліковано» додає її у видачу каталогу 1ms
+     → Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+   × статті та фракції вікі в базі даних Supabase > зв'язок «багато до багатьох» між статтею і фракцією зберігається та каскадно очищується 1ms
+     → Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+ ✓ tests/wiki.test.ts (5 tests) 6ms
+ ✓ tests/smoke.test.ts (1 test) 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/db-articles.test.ts > статті та фракції вікі в базі даних Supabase > створена чернетка статті читається назад із бази за id
+Error: Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+ ❯ db lib/data/db/client.ts:13:11
+     11|   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+     12|   if (!url || !key) {
+     13|     throw new Error(
+       |           ^
+     14|       "Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KE…
+     15|     );
+ ❯ resolveAuthorId lib/data/db/articles.ts:34:52
+ ❯ saveDraftArticle lib/data/db/articles.ts:98:26
+ ❯ tests/db-articles.test.ts:21:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/db-articles.test.ts > статті та фракції вікі в базі даних Supabase > видалена стаття не знаходиться в базі
+Error: Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+ ❯ db lib/data/db/client.ts:13:11
+     11|   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+     12|   if (!url || !key) {
+     13|     throw new Error(
+       |           ^
+     14|       "Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KE…
+     15|     );
+ ❯ resolveAuthorId lib/data/db/articles.ts:34:52
+ ❯ saveDraftArticle lib/data/db/articles.ts:98:26
+ ❯ tests/db-articles.test.ts:41:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/db-articles.test.ts > статті та фракції вікі в базі даних Supabase > порожній заголовок статті не приймається базою
+Error: Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+ ❯ db lib/data/db/client.ts:13:11
+     11|   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+     12|   if (!url || !key) {
+     13|     throw new Error(
+       |           ^
+     14|       "Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KE…
+     15|     );
+ ❯ cleanupTestProfiles tests/db-articles.test.ts:13:9
+ ❯ tests/db-articles.test.ts:65:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/db-articles.test.ts > статті та фракції вікі в базі даних Supabase > оновлення статусу статті на «опубліковано» додає її у видачу каталогу
+Error: Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+ ❯ db lib/data/db/client.ts:13:11
+     11|   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+     12|   if (!url || !key) {
+     13|     throw new Error(
+       |           ^
+     14|       "Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KE…
+     15|     );
+ ❯ resolveAuthorId lib/data/db/articles.ts:34:52
+ ❯ saveDraftArticle lib/data/db/articles.ts:98:26
+ ❯ tests/db-articles.test.ts:72:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/db-articles.test.ts > статті та фракції вікі в базі даних Supabase > зв'язок «багато до багатьох» між статтею і фракцією зберігається та каскадно очищується
+Error: Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KEY: перевірте файл .env.local
+ ❯ db lib/data/db/client.ts:13:11
+     11|   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+     12|   if (!url || !key) {
+     13|     throw new Error(
+       |           ^
+     14|       "Немає NEXT_PUBLIC_SUPABASE_URL або NEXT_PUBLIC_SUPABASE_ANON_KE…
+     15|     );
+ ❯ createFaction lib/data/db/factions.ts:35:33
+ ❯ tests/db-articles.test.ts:91:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  5 failed | 6 passed (11)
+   Start at  19:03:48
+   Duration  1.30s (transform 147ms, setup 0ms, collect 418ms, tests 29ms, environment 2ms, prepare 260ms)
+

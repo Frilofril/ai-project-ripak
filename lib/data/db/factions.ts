@@ -1,26 +1,51 @@
 import type { Faction } from "@/lib/data/factions";
+import { db } from "./client";
 
-// ЗАГЛУШКА: реалізація на кроці 13
-export async function listFactions(): Promise<Faction[]> {
-  return [];
+type FactionRow = {
+  id: string;
+  name: string;
+  color_hex: string;
+  description: string;
+  article_factions?: { article_id: string }[] | null;
+};
+
+function toFaction(row: FactionRow): Faction {
+  return {
+    id: row.id,
+    name: row.name,
+    colorHex: row.color_hex,
+    description: row.description,
+    articleCount: (row.article_factions ?? []).length,
+  };
 }
 
-// ЗАГЛУШКА: реалізація на кроці 13
+export async function listFactions(): Promise<Faction[]> {
+  const { data, error } = await db()
+    .from("factions")
+    .select("id, name, color_hex, description, article_factions(article_id)");
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as FactionRow[]).map(toFaction);
+}
+
 export async function createFaction(input: {
   name: string;
   colorHex: string;
   description: string;
 }): Promise<Faction> {
-  return {
-    id: "",
-    name: input.name,
-    colorHex: input.colorHex,
-    description: input.description,
-    articleCount: 0,
-  };
+  const { data, error } = await db()
+    .from("factions")
+    .insert({
+      name: input.name,
+      color_hex: input.colorHex,
+      description: input.description,
+    })
+    .select("id, name, color_hex, description")
+    .single();
+  if (error) throw new Error(error.message);
+  return toFaction(data as unknown as FactionRow);
 }
 
-// ЗАГЛУШКА: реалізація на кроці 13
 export async function deleteFaction(factionId: string): Promise<void> {
-  void factionId;
+  const { error } = await db().from("factions").delete().eq("id", factionId);
+  if (error) throw new Error(error.message);
 }
