@@ -1,10 +1,10 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ActionForm } from "@/components/action-form";
 import { getArticle } from "@/lib/data/articles";
 import { listFactions } from "@/lib/data/factions";
-import {
-  returnToDraftFromViewAction,
-  submitComplaintAction,
-} from "./actions";
+import { listArticleFiles } from "@/lib/data/db/article-files";
+import { returnToDraftAction, submitComplaintAction, uploadArticleImageAction } from "./actions";
 
 export default async function ArticlePage({
   params,
@@ -12,118 +12,124 @@ export default async function ArticlePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [article, factions] = await Promise.all([
+  const [article, factions, files] = await Promise.all([
     getArticle(id),
     listFactions(),
+    listArticleFiles(id),
   ]);
 
   if (!article) {
-    return (
-      <main className="max-w-4xl mx-auto p-6 space-y-4">
-        <div className="p-6 border rounded-xl bg-amber-50 text-amber-900 space-y-3">
-          <p className="font-medium">
-            Статтю не знайдено або її було знято з публікації у чернетки після модерації
-          </p>
-          <Link
-            href="/"
-            className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm"
-          >
-            ← Назад до каталогу
-          </Link>
-        </div>
-      </main>
-    );
+    notFound();
   }
 
-  const factionMap = new Map(factions.map((f) => [f.id, f.name]));
+  const attachedFactions = factions.filter((f) => article.factionIds.includes(f.id));
 
   return (
-    <main className="max-w-4xl mx-auto p-6 space-y-6">
-      <header className="flex items-center justify-between border-b pb-4 text-sm">
-        <Link href="/" className="font-medium hover:underline">
+    <main className="mx-auto max-w-3xl space-y-6 p-6">
+      <nav className="flex items-center justify-between border-b pb-3 text-sm">
+        <Link href="/" className="underline">
           ← Назад до каталогу
         </Link>
-        <div className="flex gap-4">
-          <Link href="/editor" className="text-slate-700 hover:underline">
-            Редактор
+        <div className="flex gap-3">
+          <Link href={`/editor?id=${article.id}`} className="rounded border px-3 py-1">
+            Редагувати у /editor
           </Link>
-          <Link href="/factions" className="text-slate-700 hover:underline">
-            Фракції
+          <Link href="/factions" className="rounded border px-3 py-1">
+            Довідник фракцій
           </Link>
         </div>
-      </header>
+      </nav>
 
-      <article className="p-6 border rounded-xl bg-white space-y-4">
-        <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">
-              {article.status} (Ф1)
-            </span>
-            <span className="text-slate-500">ID статті: #{article.id}</span>
-          </div>
-          <span className="text-slate-500">Автор: {article.authorName}</span>
+      <article className="space-y-4 rounded border bg-white p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600">
+          <span className="rounded bg-gray-100 px-2.5 py-1 font-semibold uppercase">
+            Категорія: {article.category}
+          </span>
+          <span className="rounded border px-2.5 py-1">
+            Статус: <strong>{article.status}</strong>
+          </span>
+          <span>Автор: {article.authorName}</span>
         </div>
 
         <h1 className="text-2xl font-bold">{article.title}</h1>
 
-        <div className="flex flex-wrap gap-2">
-          {article.factionIds.map((fid) => (
-            <span
-              key={fid}
-              className="px-2.5 py-0.5 bg-indigo-50 text-indigo-700 rounded text-xs"
-            >
-              {factionMap.get(fid) ?? fid}
-            </span>
-          ))}
-        </div>
+        {attachedFactions.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {attachedFactions.map((f) => (
+              <span
+                key={f.id}
+                className="rounded px-2.5 py-0.5 text-xs font-medium text-white"
+                style={{ backgroundColor: f.colorHex }}
+              >
+                {f.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
-        <div className="p-6 border border-dashed rounded-xl bg-slate-50 text-center space-y-1">
-          <p className="text-sm font-medium text-slate-700">
-            Ілюстрація статті зі сховища Supabase Storage (Ф4)
-          </p>
-          <p className="text-xs text-slate-500 font-mono">
-            {article.imageUrl || "storage://wiki-media/default-map.webp"}
-          </p>
-          <p className="text-xs text-indigo-600">
-            {article.status === "опубліковано"
-              ? "Опублікований файл доступний для всіх відвідувачів"
-              : "Файл чернетки захищений (доступний лише автору та Головному редактору)"}
-          </p>
-        </div>
+        <p className="whitespace-pre-line text-base leading-relaxed text-gray-800">
+          {article.content}
+        </p>
 
-        <p className="text-slate-700 leading-relaxed">{article.content}</p>
+        <section className="space-y-3 border-t pt-4">
+          <h2 className="text-lg font-semibold">Ілюстрації та мапи статті (Supabase Storage, Ф4)</h2>
+          {article.imageUrl ? (
+            <p className="text-xs text-gray-500">Поточний шлях у записі: {article.imageUrl}</p>
+          ) : null}
+          {files.length > 0 ? (
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              {files.map((f) => (
+                <li key={f.name}>
+                  <a href={f.url} target="_blank" rel="noreferrer" className="underline">
+                    {f.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500">Файлів у приватному сховищі для цієї статті ще немає.</p>
+          )}
 
-        {article.status !== "чернетка" && (
-          <form action={returnToDraftFromViewAction} className="pt-2">
-            <input type="hidden" name="articleId" value={article.id} />
-            <button
-              type="submit"
-              className="px-3 py-1.5 border rounded-lg text-xs hover:bg-slate-50"
-            >
-              Повернути в чернетки для редагування (Ф3.3)
+          <ActionForm action={uploadArticleImageAction} className="flex flex-wrap items-center gap-2 pt-2">
+            <input type="hidden" name="article_id" value={article.id} />
+            <input
+              type="file"
+              name="file"
+              required
+              accept=".png,.jpg,.jpeg,.webp,.pdf"
+              className="rounded border px-2 py-1 text-sm"
+            />
+            <button className="rounded bg-black px-3 py-1.5 text-sm text-white">
+              Додати файл ілюстрації
             </button>
-          </form>
-        )}
+          </ActionForm>
+        </section>
+
+        <div className="border-t pt-4">
+          <ActionForm action={returnToDraftAction}>
+            <input type="hidden" name="articleId" value={article.id} />
+            <button className="rounded border px-3 py-1.5 text-sm">
+              Повернути в чернетки (Ф3)
+            </button>
+          </ActionForm>
+        </div>
       </article>
 
-      <section className="p-6 border border-red-200 rounded-xl bg-red-50/40 space-y-3">
-        <h2 className="font-bold text-red-900">Поскаржитися на статтю (Ф7)</h2>
-        <form action={submitComplaintAction} className="space-y-3">
+      <section className="space-y-3 rounded border bg-gray-50 p-5">
+        <h2 className="text-lg font-semibold">Поскаржитися на статтю (Ф7)</h2>
+        <ActionForm action={submitComplaintAction} className="space-y-3">
           <input type="hidden" name="articleId" value={article.id} />
           <textarea
             name="reason"
             required
-            placeholder="Вкажіть причину звернення..."
-            className="w-full border rounded-lg p-3 text-sm bg-white"
             rows={3}
+            placeholder="Опишіть порушення канону або причину скарги (від 5 символів)..."
+            className="w-full rounded border bg-white p-2 text-sm"
           />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium"
-          >
+          <button className="rounded bg-black px-4 py-1.5 text-sm text-white">
             Надіслати скаргу
           </button>
-        </form>
+        </ActionForm>
       </section>
     </main>
   );

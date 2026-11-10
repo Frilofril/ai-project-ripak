@@ -1,5 +1,5 @@
-import type { Complaint } from "@/lib/data/complaints";
 import { db } from "./client";
+import type { Complaint } from "@/lib/data/complaints";
 
 type ComplaintRow = {
   id: string;
@@ -12,22 +12,23 @@ type ComplaintRow = {
 };
 
 function toComplaint(row: ComplaintRow): Complaint {
-  const articleObj = Array.isArray(row.articles) ? row.articles[0] : row.articles;
-  const profileObj = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+  const art = Array.isArray(row.articles) ? row.articles[0] : row.articles;
+  const prof = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
   return {
     id: row.id,
     articleId: row.article_id,
-    articleTitle: articleObj?.title ?? "",
+    articleTitle: art?.title ?? "Стаття всесвіту",
     reason: row.reason,
-    authorName: profileObj?.full_name ?? "Читач",
     status: row.status,
+    authorName: prof?.full_name ?? "Читач вікі",
   };
 }
 
+const SELECT_COMPLAINT =
+  "id, article_id, reporter_id, reason, status, articles(title), profiles(full_name)";
+
 export async function listComplaints(onlyOpen = true): Promise<Complaint[]> {
-  let req = db()
-    .from("complaints")
-    .select("id, article_id, reporter_id, reason, status, articles(title), profiles(full_name)");
+  let req = db().from("complaints").select(SELECT_COMPLAINT);
   if (onlyOpen) {
     req = req.eq("status", "відкрита");
   }
@@ -41,36 +42,17 @@ export async function submitComplaint(input: {
   reason: string;
   authorName?: string;
 }): Promise<Complaint> {
-  const cleanName = (input.authorName ?? "Читач").trim() || "Читач";
-  let reporterId: string | null = null;
-  const { data: existingProfile } = await db()
-    .from("profiles")
-    .select("id")
-    .eq("full_name", cleanName)
-    .maybeSingle();
-
-  if (existingProfile?.id) {
-    reporterId = existingProfile.id as string;
-  } else {
-    const { data: createdProfile, error: profErr } = await db()
-      .from("profiles")
-      .insert({ full_name: cleanName, role: "співавтор" })
-      .select("id")
-      .single();
-    if (profErr) throw new Error(profErr.message);
-    reporterId = createdProfile.id as string;
-  }
-
+  const reason = input.reason.trim();
   const { data, error } = await db()
     .from("complaints")
     .insert({
       article_id: input.articleId,
-      reporter_id: reporterId,
-      reason: input.reason,
+      reason,
       status: "відкрита",
     })
-    .select("id, article_id, reporter_id, reason, status, articles(title), profiles(full_name)")
+    .select(SELECT_COMPLAINT)
     .single();
+
   if (error) throw new Error(error.message);
   return toComplaint(data as unknown as ComplaintRow);
 }
@@ -79,39 +61,32 @@ export async function resolveComplaint(
   complaintId: string,
   decision: "вирішено" | "відхилено",
 ): Promise<Complaint> {
-  const { data: current, error: getErr } = await db()
+  const { data: updated, error } = await db()
     .from("complaints")
-    .select("id, article_id")
+    .update({ status: decision })
     .eq("id", complaintId)
-    .single();
-  if (getErr) throw new Error(getErr.message);
+    .select(SELECT_COMPLAINT)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!updated) throw new Error("NOT_FOUND");
+
+  const row = updated as unknown as ComplaintRow;
 
   if (decision === "вирішено") {
     const { error: artErr } = await db()
       .from("articles")
       .update({ status: "чернетка" })
-      .eq("id", current.article_id);
+      .eq("id", row.article_id);
     if (artErr) throw new Error(artErr.message);
 
-    const { error: allCompErr } = await db()
+    const { error: closeOthersErr } = await db()
       .from("complaints")
       .update({ status: "вирішено" })
-      .eq("article_id", current.article_id)
+      .eq("article_id", row.article_id)
       .eq("status", "відкрита");
-    if (allCompErr) throw new Error(allCompErr.message);
-  } else {
-    const { error: oneErr } = await db()
-      .from("complaints")
-      .update({ status: "відхилено" })
-      .eq("id", complaintId);
-    if (oneErr) throw new Error(oneErr.message);
+    if (closeOthersErr) throw new Error(closeOthersErr.message);
   }
 
-  const { data: updated, error: finalErr } = await db()
-    .from("complaints")
-    .select("id, article_id, reporter_id, reason, status, articles(title), profiles(full_name)")
-    .eq("id", complaintId)
-    .single();
-  if (finalErr) throw new Error(finalErr.message);
-  return toComplaint(updated as unknown as ComplaintRow);
+  return toComplaint(row);
 }

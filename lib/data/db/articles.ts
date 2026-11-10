@@ -1,5 +1,5 @@
-import type { Article, ArticleCategory, ArticleStatus } from "@/lib/data/articles";
 import { db } from "./client";
+import type { Article, ArticleCategory, ArticleStatus } from "@/lib/data/articles";
 
 type ArticleRow = {
   id: string;
@@ -9,11 +9,11 @@ type ArticleRow = {
   status: ArticleStatus;
   image_url: string | null;
   author_id: string | null;
-  profiles?: { full_name: string } | { full_name: string }[] | null;
+  profiles?: { full_name: string; role: string } | { full_name: string; role: string }[] | null;
   article_factions?: { faction_id: string }[] | null;
 };
 
-function toArticle(row: ArticleRow): Article {
+function mapRowToArticle(row: ArticleRow): Article {
   const profileObj = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
   const factionIds = (row.article_factions ?? []).map((af) => af.faction_id);
   return {
@@ -22,31 +22,15 @@ function toArticle(row: ArticleRow): Article {
     category: row.category,
     content: row.content,
     status: row.status,
-    authorName: profileObj?.full_name ?? "Співавтор",
+    imageUrl: row.image_url ?? undefined,
+    authorName: profileObj?.full_name ?? "Співавтор всесвіту",
+    authorRole: (profileObj?.role as Article["authorRole"]) ?? "співавтор",
     factionIds,
-    ...(row.image_url ? { imageUrl: row.image_url } : {}),
   };
 }
 
-async function resolveAuthorId(authorName?: string): Promise<string | null> {
-  const clean = (authorName ?? "Співавтор").trim();
-  if (!clean) return null;
-  const { data: existing, error: findErr } = await db()
-    .from("profiles")
-    .select("id")
-    .eq("full_name", clean)
-    .maybeSingle();
-  if (findErr) throw new Error(findErr.message);
-  if (existing?.id) return existing.id as string;
-
-  const { data: created, error: createErr } = await db()
-    .from("profiles")
-    .insert({ full_name: clean, role: "співавтор" })
-    .select("id")
-    .single();
-  if (createErr) throw new Error(createErr.message);
-  return created.id as string;
-}
+const SELECT_ARTICLE =
+  "id, title, category, content, status, image_url, author_id, profiles(full_name, role), article_factions(faction_id)";
 
 export async function listPublishedArticles(filter?: {
   category?: string;
@@ -55,7 +39,7 @@ export async function listPublishedArticles(filter?: {
 }): Promise<Article[]> {
   let req = db()
     .from("articles")
-    .select("id, title, category, content, status, image_url, author_id, profiles(full_name), article_factions(faction_id)")
+    .select(SELECT_ARTICLE)
     .eq("status", "опубліковано");
 
   if (filter?.category && filter.category !== "усі") {
@@ -69,22 +53,24 @@ export async function listPublishedArticles(filter?: {
   const { data, error } = await req;
   if (error) throw new Error(error.message);
 
-  const items = ((data ?? []) as unknown as ArticleRow[]).map(toArticle);
+  let articles = ((data ?? []) as unknown as ArticleRow[]).map(mapRowToArticle);
   if (filter?.factionId && filter.factionId !== "усі") {
-    return items.filter((a) => a.factionIds.includes(filter.factionId!));
+    articles = articles.filter((a) => a.factionIds.includes(filter.factionId!));
   }
-  return items;
+  return articles;
 }
 
 export async function getArticle(id: string): Promise<Article | null> {
-  if (!id || !id.trim()) return null;
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data, error } = await db()
     .from("articles")
-    .select("id, title, category, content, status, image_url, author_id, profiles(full_name), article_factions(faction_id)")
+    .select(SELECT_ARTICLE)
     .eq("id", id)
     .maybeSingle();
+
   if (error) throw new Error(error.message);
-  return data ? toArticle(data as unknown as ArticleRow) : null;
+  if (!data) return null;
+  return mapRowToArticle(data as unknown as ArticleRow);
 }
 
 export async function saveDraftArticle(input: {
@@ -92,73 +78,84 @@ export async function saveDraftArticle(input: {
   title: string;
   category: ArticleCategory;
   content: string;
+  status?: ArticleStatus;
   factionIds: string[];
   authorName?: string;
 }): Promise<Article> {
-  const authorId = await resolveAuthorId(input.authorName);
+  const title = input.title.trim();
+  const content = input.content.trim();
+  if (!title || !content) {
+    throw new Error("Заголовок та опис статті не можуть бути порожніми.");
+  }
 
+  const status: ArticleStatus = input.status ?? "чернетка";
   let articleId = input.id;
+
   if (articleId) {
-    const { error: updErr } = await db()
+    const { data, error } = await db()
       .from("articles")
       .update({
-        title: input.title,
+        title,
         category: input.category,
-        content: input.content,
-        status: "чернетка",
-        author_id: authorId,
+        content,
+        status,
       })
-      .eq("id", articleId);
-    if (updErr) throw new Error(updErr.message);
+      .eq("id", articleId)
+      .select("id")
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error("NOT_FOUND");
   } else {
-    const { data: inserted, error: insErr } = await db()
+    const { data, error } = await db()
       .from("articles")
       .insert({
-        title: input.title,
+        title,
         category: input.category,
-        content: input.content,
-        status: "чернетка",
-        author_id: authorId,
+        content,
+        status,
       })
       .select("id")
       .single();
-    if (insErr) throw new Error(insErr.message);
-    articleId = inserted.id as string;
+
+    if (error) throw new Error(error.message);
+    articleId = data.id as string;
   }
 
-  const { error: delLinksErr } = await db()
+  const { error: delErr } = await db()
     .from("article_factions")
     .delete()
     .eq("article_id", articleId);
-  if (delLinksErr) throw new Error(delLinksErr.message);
+  if (delErr) throw new Error(delErr.message);
 
-  if (input.factionIds.length > 0) {
-    const links = input.factionIds.map((factionId) => ({
+  if (input.factionIds && input.factionIds.length > 0) {
+    const rows = input.factionIds.map((factionId) => ({
       article_id: articleId!,
       faction_id: factionId,
     }));
-    const { error: insLinksErr } = await db().from("article_factions").insert(links);
-    if (insLinksErr) throw new Error(insLinksErr.message);
+    const { error: insErr } = await db().from("article_factions").insert(rows);
+    if (insErr) throw new Error(insErr.message);
   }
 
-  const saved = await getArticle(articleId!);
-  if (!saved) throw new Error("Не вдалося прочитати збережену статтю");
-  return saved;
+  const loaded = await getArticle(articleId!);
+  if (!loaded) throw new Error("Не вдалося прочитати збережену статтю.");
+  return loaded;
 }
 
 export async function updateArticleStatus(
   articleId: string,
   status: ArticleStatus,
 ): Promise<Article> {
-  const { error } = await db()
+  const { data, error } = await db()
     .from("articles")
     .update({ status })
-    .eq("id", articleId);
-  if (error) throw new Error(error.message);
+    .eq("id", articleId)
+    .select(SELECT_ARTICLE)
+    .maybeSingle();
 
-  const updated = await getArticle(articleId);
-  if (!updated) throw new Error("Статтю не знайдено");
-  return updated;
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("NOT_FOUND");
+  return mapRowToArticle(data as unknown as ArticleRow);
 }
 
 export async function attachArticleImage(
@@ -166,34 +163,42 @@ export async function attachArticleImage(
   fileName: string,
   fileSizeMb: number,
 ): Promise<Article> {
-  if (!fileName.trim()) {
-    throw new Error("Назва файлу ілюстрації не може бути порожньою");
+  if (fileSizeMb > 5) {
+    throw new Error("Файл перевищує допустимий розмір 5 МБ.");
   }
-  if (fileSizeMb <= 0 || fileSizeMb > 5) {
-    throw new Error("Розмір файлу має бути в межах до 5 МБ");
-  }
-  const imageUrl = `storage://wiki-media/${fileName.trim()}`;
-  const { error } = await db()
+  const imageUrl = fileName.startsWith("storage://")
+    ? fileName
+    : `storage://wiki-media/${fileName}`;
+
+  const { data, error } = await db()
     .from("articles")
     .update({ image_url: imageUrl })
-    .eq("id", articleId);
-  if (error) throw new Error(error.message);
+    .eq("id", articleId)
+    .select(SELECT_ARTICLE)
+    .maybeSingle();
 
-  const updated = await getArticle(articleId);
-  if (!updated) throw new Error("Статтю не знайдено");
-  return updated;
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("NOT_FOUND");
+  return mapRowToArticle(data as unknown as ArticleRow);
 }
 
 export async function listModerationQueue(): Promise<Article[]> {
   const { data, error } = await db()
     .from("articles")
-    .select("id, title, category, content, status, image_url, author_id, profiles(full_name), article_factions(faction_id)")
+    .select(SELECT_ARTICLE)
     .eq("status", "на перевірці");
+
   if (error) throw new Error(error.message);
-  return ((data ?? []) as unknown as ArticleRow[]).map(toArticle);
+  return ((data ?? []) as unknown as ArticleRow[]).map(mapRowToArticle);
 }
 
-export async function deleteArticle(id: string): Promise<void> {
-  const { error } = await db().from("articles").delete().eq("id", id);
+export async function deleteArticle(id: string): Promise<boolean> {
+  const { data, error } = await db()
+    .from("articles")
+    .delete()
+    .eq("id", id)
+    .select("id");
+
   if (error) throw new Error(error.message);
+  return (data ?? []).length > 0;
 }

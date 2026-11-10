@@ -5,160 +5,134 @@ import { listFactions } from "@/lib/data/factions";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; faction?: string; q?: string }>;
+  searchParams: Promise<{ category?: string; factionId?: string; query?: string }>;
 }) {
-  const { category = "all", faction = "all", q = "" } = await searchParams;
+  const params = await searchParams;
   const [articles, factions] = await Promise.all([
-    listPublishedArticles({ category, factionId: faction, query: q }),
+    listPublishedArticles(params),
     listFactions(),
   ]);
 
-  const factionMap = new Map(factions.map((f) => [f.id, f.name]));
+  const factionMap = new Map(factions.map((f) => [f.id, f]));
 
   return (
-    <main className="max-w-5xl mx-auto p-6 space-y-6">
-      <header className="flex items-center justify-between border-b pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center">
-            В
-          </div>
-          <div>
-            <h1 className="font-bold text-lg">Вікі всесвіту</h1>
-            <p className="text-xs text-slate-500">Спільна енциклопедія</p>
-          </div>
+    <main className="mx-auto max-w-5xl space-y-6 p-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-bold">Спільна вікі вигаданого світу</h1>
+          <p className="text-sm text-gray-600">Каталог опублікованих статей лору всесвіту (Ф1, Ф2)</p>
         </div>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/" className="font-medium text-indigo-600">
-            Каталог
+        <nav className="flex flex-wrap gap-3 text-sm">
+          <Link href="/editor" className="rounded bg-black px-3 py-1.5 text-white">
+            + Нова чернетка
           </Link>
-          <Link href="/factions" className="text-slate-700 hover:underline">
+          <Link href="/factions" className="rounded border px-3 py-1.5">
             Довідник фракцій
           </Link>
-          <Link href="/moderation" className="text-slate-700 hover:underline">
-            Модерація
+          <Link href="/moderation" className="rounded border px-3 py-1.5">
+            Панель модерації
           </Link>
-          <Link
-            href="/editor"
-            className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-medium"
-          >
-            + Нова чернетка
+          <Link href="/login" className="rounded border px-3 py-1.5">
+            Профіль / Вхід
           </Link>
         </nav>
       </header>
 
-      <section className="p-5 border rounded-xl bg-white space-y-4">
-        <div>
-          <h2 className="text-xl font-bold">Каталог статей (Ф1, Ф2)</h2>
-          <p className="text-sm text-slate-600">
-            База матеріалів. Обирайте категорію або фільтруйте статті за фракціями.
-          </p>
+      <form method="GET" action="/" className="grid gap-3 rounded border bg-gray-50 p-4 sm:grid-cols-4">
+        <input
+          name="query"
+          defaultValue={params.query ?? ""}
+          placeholder="Пошук за назвою або текстом..."
+          className="rounded border bg-white px-3 py-1.5"
+        />
+        <select
+          name="category"
+          defaultValue={params.category ?? "усі"}
+          className="rounded border bg-white px-3 py-1.5"
+        >
+          <option value="усі">Усі категорії</option>
+          <option value="персонаж">Персонаж</option>
+          <option value="локація">Локація</option>
+          <option value="подія">Подія</option>
+          <option value="артефакт">Артефакт</option>
+        </select>
+        <select
+          name="factionId"
+          defaultValue={params.factionId ?? "усі"}
+          className="rounded border bg-white px-3 py-1.5"
+        >
+          <option value="усі">Усі фракції</option>
+          {factions.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
+          ))}
+        </select>
+        <div className="flex gap-2">
+          <button type="submit" className="flex-1 rounded bg-black px-3 py-1.5 text-white">
+            Фільтрувати
+          </button>
+          <Link href="/" className="rounded border bg-white px-3 py-1.5 text-center">
+            Скинути
+          </Link>
         </div>
-
-        <form method="GET" action="/" className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input
-            type="text"
-            name="q"
-            defaultValue={q}
-            placeholder="Пошук за назвою або текстом (Ф2)..."
-            className="border rounded-lg px-3 py-2 text-sm"
-          />
-          <select
-            name="category"
-            defaultValue={category}
-            className="border rounded-lg px-3 py-2 text-sm bg-white"
-          >
-            <option value="all">Усі категорії (Ф1)</option>
-            <option value="персонаж">Персонаж</option>
-            <option value="локація">Локація</option>
-            <option value="подія">Подія</option>
-          </select>
-          <select
-            name="faction"
-            defaultValue={faction}
-            className="border rounded-lg px-3 py-2 text-sm bg-white"
-          >
-            <option value="all">Усі фракції (Ф1)</option>
-            {factions.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </select>
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm"
-            >
-              Застосувати
-            </button>
-            <Link
-              href="/"
-              className="px-3 py-2 border rounded-lg text-sm flex items-center"
-            >
-              Очистити
-            </Link>
-          </div>
-        </form>
-      </section>
+      </form>
 
       {articles.length === 0 ? (
-        <div className="p-6 border rounded-xl bg-amber-50 text-amber-900 space-y-3">
-          <p className="font-medium">
+        <section className="rounded border border-amber-300 bg-amber-50 p-6 text-center space-y-3">
+          <p className="font-medium text-amber-900">
             За вашим запитом нічого не знайдено або в каталозі ще немає опублікованих статей
           </p>
-          <div className="flex gap-3 text-sm">
-            <Link href="/" className="px-3 py-1.5 bg-white border rounded-lg">
+          <div className="flex justify-center gap-3">
+            <Link href="/" className="rounded border bg-white px-3 py-1.5 text-sm">
               Очистити фільтри
             </Link>
-            <Link
-              href="/editor"
-              className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg"
-            >
+            <Link href="/editor" className="rounded bg-black px-3 py-1.5 text-sm text-white">
               + Нова чернетка
             </Link>
           </div>
-        </div>
+        </section>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <section className="grid gap-4 sm:grid-cols-2">
           {articles.map((article) => (
-            <article
-              key={article.id}
-              className="p-5 border rounded-xl bg-white flex flex-col justify-between space-y-4"
-            >
+            <article key={article.id} className="flex flex-col justify-between rounded border bg-white p-4 shadow-sm">
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="px-2 py-0.5 bg-slate-100 rounded font-medium capitalize">
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <span className="rounded bg-gray-100 px-2 py-0.5 font-medium uppercase">
                     {article.category}
                   </span>
-                  <span className="text-slate-500">Автор: {article.authorName}</span>
+                  <span>Автор: {article.authorName}</span>
                 </div>
-                <h3 className="font-bold text-lg">{article.title}</h3>
-                <p className="text-sm text-slate-600 line-clamp-3">
-                  {article.content}
-                </p>
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {article.factionIds.map((fid) => (
-                    <span
-                      key={fid}
-                      className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-xs"
-                    >
-                      {factionMap.get(fid) ?? fid}
-                    </span>
-                  ))}
-                </div>
+                <h2 className="text-lg font-semibold">
+                  <Link href={`/articles/${article.id}`} className="hover:underline">
+                    {article.title}
+                  </Link>
+                </h2>
+                <p className="line-clamp-3 text-sm text-gray-700">{article.content}</p>
               </div>
-              <div className="flex items-center justify-between pt-3 border-t text-xs">
-                <span className="text-emerald-700 font-medium">Опубліковано</span>
-                <Link
-                  href={`/articles/${article.id}`}
-                  className="text-indigo-600 font-medium hover:underline"
-                >
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
+                <div className="flex flex-wrap gap-1.5">
+                  {article.factionIds.map((fid) => {
+                    const f = factionMap.get(fid);
+                    if (!f) return null;
+                    return (
+                      <span
+                        key={fid}
+                        className="rounded px-2 py-0.5 text-xs text-white"
+                        style={{ backgroundColor: f.colorHex }}
+                      >
+                        {f.name}
+                      </span>
+                    );
+                  })}
+                </div>
+                <Link href={`/articles/${article.id}`} className="text-sm font-medium underline">
                   Читати статтю →
                 </Link>
               </div>
             </article>
           ))}
-        </div>
+        </section>
       )}
     </main>
   );

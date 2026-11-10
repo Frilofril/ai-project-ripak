@@ -1,5 +1,5 @@
-import type { Faction } from "@/lib/data/factions";
 import { db } from "./client";
+import type { Faction } from "@/lib/data/factions";
 
 type FactionRow = {
   id: string;
@@ -22,7 +22,9 @@ function toFaction(row: FactionRow): Faction {
 export async function listFactions(): Promise<Faction[]> {
   const { data, error } = await db()
     .from("factions")
-    .select("id, name, color_hex, description, article_factions(article_id)");
+    .select("id, name, color_hex, description, article_factions(article_id)")
+    .order("name", { ascending: true });
+
   if (error) throw new Error(error.message);
   return ((data ?? []) as unknown as FactionRow[]).map(toFaction);
 }
@@ -32,20 +34,31 @@ export async function createFaction(input: {
   colorHex: string;
   description: string;
 }): Promise<Faction> {
+  const name = input.name.trim();
+  const colorHex = input.colorHex.trim();
+  const description = input.description.trim();
+
   const { data, error } = await db()
     .from("factions")
     .insert({
-      name: input.name,
-      color_hex: input.colorHex,
-      description: input.description,
+      name,
+      color_hex: colorHex,
+      description,
     })
     .select("id, name, color_hex, description")
     .single();
+
   if (error) throw new Error(error.message);
   return toFaction(data as unknown as FactionRow);
 }
 
-export async function deleteFaction(factionId: string): Promise<void> {
-  const { error } = await db().from("factions").delete().eq("id", factionId);
+export async function deleteFaction(factionId: string): Promise<boolean> {
+  const { data, error } = await db()
+    .from("factions")
+    .delete()
+    .eq("id", factionId)
+    .select("id");
+
   if (error) throw new Error(error.message);
+  return (data ?? []).length > 0;
 }
