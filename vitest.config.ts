@@ -1,22 +1,17 @@
 import { defineConfig } from "vitest/config";
-import path from "node:path";
 import { loadEnv } from "vite";
+import { fileURLToPath } from "node:url";
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
-  return {
-    test: {
-      environment: "node",
-      env: {
-        NEXT_PUBLIC_SUPABASE_URL: env.NEXT_PUBLIC_SUPABASE_URL,
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
-      },
-    },
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "."),
-      },
-    },
-  };
-});
+// Налаштування тестів (практична робота 5).
+// Псевдонім @ і змінні з .env.local — як у ПР 4. Нове: перед кожним тестом
+// tests/setup.ts виконує вхід тестовим акаунтом А.
+export default defineConfig(({ mode }) => ({
+  resolve: {
+    alias: { "@": fileURLToPath(new URL("./", import.meta.url)) },
+  },
+  test: {
+    env: loadEnv(mode, process.cwd(), ""),
+    setupFiles: ["./tests/setup.ts"],
+    testTimeout: 15000,
+  },
+}));
