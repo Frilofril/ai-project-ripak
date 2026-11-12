@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { listPublishedArticles } from "@/lib/data/articles";
 import { listFactions } from "@/lib/data/factions";
+import { db } from "@/lib/data/db/client";
+import { signOutAction } from "@/app/login/actions";
 
 export default async function HomePage({
   searchParams,
@@ -8,11 +10,28 @@ export default async function HomePage({
   searchParams: Promise<{ category?: string; factionId?: string; query?: string }>;
 }) {
   const params = await searchParams;
-  const [articles, factions] = await Promise.all([
+  const supabase = db();
+
+  const [articles, factions, { data: authData }] = await Promise.all([
     listPublishedArticles(params),
     listFactions(),
+    supabase.auth.getUser(),
   ]);
 
+  let role = "гість";
+  let displayName = authData.user?.email ?? "";
+
+  if (authData.user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name, role")
+      .eq("user_id", authData.user.id)
+      .maybeSingle();
+    if (profile?.role) role = profile.role;
+    if (profile?.full_name) displayName = profile.full_name;
+  }
+
+  const isEditor = role === "редактор";
   const factionMap = new Map(factions.map((f) => [f.id, f]));
 
   return (
@@ -22,19 +41,36 @@ export default async function HomePage({
           <h1 className="text-2xl font-bold">Спільна вікі вигаданого світу</h1>
           <p className="text-sm text-gray-600">Каталог опублікованих статей лору всесвіту (Ф1, Ф2)</p>
         </div>
-        <nav className="flex flex-wrap gap-3 text-sm">
+        <nav className="flex flex-wrap items-center gap-2.5 text-sm">
           <Link href="/editor" className="rounded bg-black px-3 py-1.5 text-white">
             + Нова чернетка
           </Link>
-          <Link href="/factions" className="rounded border px-3 py-1.5">
+          <Link href="/factions" className="rounded border px-3 py-1.5 hover:bg-gray-50">
             Довідник фракцій
           </Link>
-          <Link href="/moderation" className="rounded border px-3 py-1.5">
-            Панель модерації
-          </Link>
-          <Link href="/login" className="rounded border px-3 py-1.5">
-            Профіль / Вхід
-          </Link>
+          {isEditor ? (
+            <Link href="/moderation" className="rounded border px-3 py-1.5 hover:bg-gray-50">
+              Панель модерації
+            </Link>
+          ) : null}
+
+          {authData.user ? (
+            <div className="flex items-center gap-2 rounded border bg-gray-50 px-3 py-1">
+              <span className="font-medium text-gray-800">{displayName}</span>
+              <span className="rounded bg-gray-200 px-1.5 py-0.5 text-xs uppercase text-gray-700">
+                {role}
+              </span>
+              <form action={signOutAction}>
+                <button className="ml-1 text-xs font-medium text-red-600 hover:underline">
+                  Вийти
+                </button>
+              </form>
+            </div>
+          ) : (
+            <Link href="/login" className="rounded border px-3 py-1.5 hover:bg-gray-50">
+              Увійти
+            </Link>
+          )}
         </nav>
       </header>
 
