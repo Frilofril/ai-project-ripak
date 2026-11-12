@@ -1,3 +1,4 @@
+import { ActionForm } from "@/components/action-form";
 import Link from "next/link";
 import { listFactions } from "@/lib/data/factions";
 import { saveDraftAction, sendToReviewAction } from "./actions";
@@ -31,7 +32,7 @@ export default async function EditorPage() {
           </p>
         </div>
 
-        <form action={saveDraftAction} className="space-y-4">
+        <ActionForm action={saveDraftAction} className="space-y-4">
           <div className="space-y-1">
             <label className="text-sm font-medium">Заголовок статті (Ф3)</label>
             <input
@@ -118,9 +119,9 @@ export default async function EditorPage() {
               Зберегти чернетку (Ф3.1)
             </button>
           </div>
-        </form>
+        </ActionForm>
 
-        <form action={sendToReviewAction} className="pt-2 border-t">
+        <ActionForm action={sendToReviewAction} className="pt-2 border-t">
           <input type="hidden" name="articleId" value="5" />
           <button
             type="submit"
@@ -128,7 +129,7 @@ export default async function EditorPage() {
           >
             Надіслати на перевірку Головному редактору (Ф3.2)
           </button>
-        </form>
+        </ActionForm>
       </section>
     </main>
   );

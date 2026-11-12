@@ -30,7 +30,7 @@ describe("спільна вікі світу", () => {
       title: "Цитадель Північного Перевалу",
       category: "локація",
       content: "Давня гірська твердиня на межі провінцій.",
-      factionIds: ["fac-1"],
+      factionIds: [],
     });
     await updateArticleStatus(draft.id, "на перевірці");
     await updateArticleStatus(draft.id, "опубліковано");

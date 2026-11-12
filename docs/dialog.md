@@ -292,7 +292,7 @@ grant select, insert, update, delete on public.complaints to anon, authenticated
 - `lib/data/db/articles.ts` (7 функцій-заглушок із коментарем `// ЗАГЛУШКА: реалізація на кроці 13`)
 - `lib/data/db/factions.ts` (3 функції-заглушки)
 - `lib/data/db/complaints.ts` (3 функції-заглушки)
-Жоден інший файл проєкту не змінювався. Перевірка `npm run build` та `npm test` проходить успішно `[код у коміті 84c1e9a]`.
+Жоден інший файл проєкту не змінювався. Перевірка `npm run build` та `npm test` проходить успішно `[код у коміті 60bdf6f]`.
 
 ---
 
@@ -309,7 +309,7 @@ grant select, insert, update, delete on public.complaints to anon, authenticated
 Обмеження: не змінювати `lib/data/` (разом із `db/`), `tests/smoke.test.ts`, `tests/wiki.test.ts`, `package.json`, `vitest.config.ts`; без `vi.mock` і без службового ключа. На поточних заглушках усі 5 нових тестів мають падати (`×`).
 
 **Відповідь моделі (GitHub Copilot Chat):**
-Створено файл `tests/db-articles.test.ts` із 5 інтеграційними тестами до бази Supabase. Жоден файл у `lib/data/` не змінено. При запуску `npm test` усі 5 нових тестів у `tests/db-articles.test.ts` очікувано падають на заглушках (`AssertionError`), тоді як `smoke.test.ts` (1) та `wiki.test.ts` (5) залишаються зеленими (`Tests 5 failed | 6 passed (11)`) `[код у коміті 3b72d4c]`.
+Створено файл `tests/db-articles.test.ts` із 5 інтеграційними тестами до бази Supabase. Жоден файл у `lib/data/` не змінено. При запуску `npm test` усі 5 нових тестів у `tests/db-articles.test.ts` очікувано падають на заглушках (`AssertionError`), тоді як `smoke.test.ts` (1) та `wiki.test.ts` (5) залишаються зеленими (`Tests 5 failed | 6 passed (11)`) `[код у коміті bdddf94]`.
 
 ---
 
@@ -334,7 +334,7 @@ grant select, insert, update, delete on public.complaints to anon, authenticated
 Перевір функцію `resolveComplaint` у `lib/data/db/complaints.ts`: за контрактом ПР 3 при рішенні `'вирішено'` вона має не лише оновити статус скарги, а й перевести статтю (`current.article_id`) у статус `'чернетка'` в таблиці `articles` і закрити всі відкриті скарги на цю статтю (`status = 'вирішено'`). Додай ці два запити `update` через `db()` у `lib/data/db/complaints.ts`.
 
 **Відповідь моделі (GitHub Copilot Chat):**
-Доповнено `resolveComplaint` у `lib/data/db/complaints.ts`: при `decision === "вирішено"` функція оновлює `status: "чернетка"` у таблиці `articles` за `current.article_id` та масово оновлює всі відкриті скарги на цю статтю до статусу `"вирішено"`, перевіряючи `if (error) throw new Error(error.message)`. Збирання `npm run build` проходить без помилок, усі 11 тестів у `npm test` зелені (`Tests 11 passed (11)`) `[код у коміті 9e51a0f]`.
+Доповнено `resolveComplaint` у `lib/data/db/complaints.ts`: при `decision === "вирішено"` функція оновлює `status: "чернетка"` у таблиці `articles` за `current.article_id` та масово оновлює всі відкриті скарги на цю статтю до статусу `"вирішено"`, перевіряючи `if (error) throw new Error(error.message)`. Збирання `npm run build` проходить без помилок, усі 11 тестів у `npm test` зелені (`Tests 11 passed (11)`) `[код у коміті f67799b]`.
 
 ---
 

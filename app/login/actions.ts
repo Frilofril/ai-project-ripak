@@ -25,7 +25,7 @@ export async function signInAction(_previous: ActionResult | null, formData: For
   } catch (err: unknown) {
     console.error("[signInAction] виняток:", err);
     const msg = err instanceof Error ? err.message : String(err);
-    return { status: 500, message: `Помилка сервера під час входу: ${msg}` };
+    return { status: 400, message: `Помилка сервера під час входу: ${msg}` };
   }
 
   redirect(nextPath(formData.get("next")));
@@ -79,7 +79,7 @@ export async function signUpAction(_previous: ActionResult | null, formData: For
   } catch (err: unknown) {
     console.error("[signUpAction] Неочікуваний збій:", err);
     const msg = err instanceof Error ? err.message : String(err);
-    return { status: 500, message: `Помилка реєстрації: ${msg}` };
+    return { status: 400, message: `Помилка реєстрації: ${msg}` };
   }
 
   if (sessionCreated) {

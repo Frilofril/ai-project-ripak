@@ -71,7 +71,7 @@ describe("статті та фракції вікі в базі даних Supab
     const authorName = `тест-автор-${stamp}`;
     const created = await saveDraftArticle({
       title,
-      category: "артефакт",
+      category: "подія",
       content: "Магічний компас мореплавців Південного Союзу.",
       factionIds: [],
       authorName,
