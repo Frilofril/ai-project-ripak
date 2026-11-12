@@ -4,7 +4,11 @@ import { ActionForm } from "@/components/action-form";
 import { getArticle } from "@/lib/data/articles";
 import { listFactions } from "@/lib/data/factions";
 import { listArticleFiles } from "@/lib/data/db/article-files";
-import { returnToDraftAction, submitComplaintAction, uploadArticleImageAction } from "./actions";
+import {
+  returnToDraftAction,
+  submitComplaintAction,
+  uploadArticleImageAction,
+} from "./actions";
 
 export default async function ArticlePage({
   params,
@@ -22,7 +26,9 @@ export default async function ArticlePage({
     notFound();
   }
 
-  const attachedFactions = factions.filter((f) => article.factionIds.includes(f.id));
+  const attachedFactions = factions.filter((f) =>
+    article.factionIds.includes(f.id),
+  );
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6">
@@ -31,7 +37,10 @@ export default async function ArticlePage({
           ← Назад до каталогу
         </Link>
         <div className="flex gap-3">
-          <Link href={`/editor?id=${article.id}`} className="rounded border px-3 py-1">
+          <Link
+            href={`/editor?id=${article.id}`}
+            className="rounded border px-3 py-1"
+          >
             Редагувати у /editor
           </Link>
           <Link href="/factions" className="rounded border px-3 py-1">
@@ -72,25 +81,53 @@ export default async function ArticlePage({
         </p>
 
         <section className="space-y-3 border-t pt-4">
-          <h2 className="text-lg font-semibold">Ілюстрації та мапи статті (Supabase Storage, Ф4)</h2>
+          <h2 className="text-lg font-semibold">
+            Ілюстрації та мапи статті (Supabase Storage, Ф4)
+          </h2>
           {article.imageUrl ? (
-            <p className="text-xs text-gray-500">Поточний шлях у записі: {article.imageUrl}</p>
+            <p className="text-xs text-gray-500">
+              Поточний шлях у записі: {article.imageUrl}
+            </p>
           ) : null}
+
           {files.length > 0 ? (
-            <ul className="list-disc pl-5 text-sm space-y-1">
-              {files.map((f) => (
-                <li key={f.name}>
-                  <a href={f.url} target="_blank" rel="noreferrer" className="underline">
-                    {f.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {files.map((f) => {
+                const isImage = /\.(png|jpe?g|webp)$/i.test(f.name);
+                return (
+                  <div
+                    key={f.name}
+                    className="rounded border bg-gray-50 p-2 space-y-1.5"
+                  >
+                    {isImage ? (
+                      <img
+                        src={f.url}
+                        alt={f.name}
+                        className="max-h-64 w-full rounded object-cover"
+                      />
+                    ) : null}
+                    <a
+                      href={f.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block truncate text-xs underline"
+                    >
+                      {f.name}
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
-            <p className="text-sm text-gray-500">Файлів у приватному сховищі для цієї статті ще немає.</p>
+            <p className="text-sm text-gray-500">
+              Файлів у приватному сховищі для цієї статті ще немає.
+            </p>
           )}
 
-          <ActionForm action={uploadArticleImageAction} className="flex flex-wrap items-center gap-2 pt-2">
+          <ActionForm
+            action={uploadArticleImageAction}
+            className="flex flex-wrap items-center gap-2 pt-2"
+          >
             <input type="hidden" name="article_id" value={article.id} />
             <input
               type="file"

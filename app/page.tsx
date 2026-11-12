@@ -124,7 +124,7 @@ export default async function HomePage({
               Очистити фільтри
             </Link>
             <Link href="/editor" className="rounded bg-black px-3 py-1.5 text-sm text-white">
-              + Нова чернетка
+              Чернетки
             </Link>
           </div>
         </section>
