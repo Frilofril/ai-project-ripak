@@ -1,0 +1,228 @@
+
+> aidevcourse@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /workspaces/ai-project-practice-2
+
+stderr | tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т1 невалідний формат: кожен із дефектів Д1–Д6 — одна повторна спроба, потім 503 і жодного запису
+Серверна дія завершилася винятком: SyntaxError: Unexpected token 'З', "Звісно! Ос"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at generateDraftFromNoteAction [90m(/workspaces/ai-project-practice-2/[39mapp/editor/ai-actions.ts:32:23[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at submit [90m(/workspaces/ai-project-practice-2/[39mtests/helpers/submit.ts:13:20[90m)[39m
+    at [90m/workspaces/ai-project-practice-2/[39mtests/ai-article-draft.test.ts:104:22
+    at [90mfile:///workspaces/ai-project-practice-2/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-hooks.js:752:20
+
+stderr | tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т3 недоступність: провайдер не відповідає — відмова 503 з поясненням, жодного запису
+Серверна дія завершилася винятком: ModelUnavailableError: Провайдер недоступний (тест)
+    at [90m/workspaces/ai-project-practice-2/[39mtests/helpers/model.ts:12:33
+    at askModel [90m(/workspaces/ai-project-practice-2/[39mlib/ai/model.ts:66:26[90m)[39m
+    at generateDraftFromNoteAction [90m(/workspaces/ai-project-practice-2/[39mapp/editor/ai-actions.ts:23:23[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at submit [90m(/workspaces/ai-project-practice-2/[39mtests/helpers/submit.ts:13:20[90m)[39m
+    at [90m/workspaces/ai-project-practice-2/[39mtests/ai-article-draft.test.ts:123:20
+    at [90mfile:///workspaces/ai-project-practice-2/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-hooks.js:752:20 {
+  status: [33m503[39m
+}
+
+stderr | tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т4 зловмисний ввід: нотатка не потрапляє в інструкцію, а відповідь, що виконала її, відхиляється
+Серверна дія завершилася винятком: TypeError: Cannot read properties of undefined (reading 'id')
+    at [90m/workspaces/ai-project-practice-2/[39mapp/editor/ai-actions.ts:34:57
+    at Array.map (<anonymous>)
+    at generateDraftFromNoteAction [90m(/workspaces/ai-project-practice-2/[39mapp/editor/ai-actions.ts:34:30[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at submit [90m(/workspaces/ai-project-practice-2/[39mtests/helpers/submit.ts:13:20[90m)[39m
+    at [90m/workspaces/ai-project-practice-2/[39mtests/ai-article-draft.test.ts:134:20
+    at [90mfile:///workspaces/ai-project-practice-2/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-hooks.js:752:20
+
+stderr | tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т6 таймаут: запит має явний таймаут менший за 300 с; після таймауту — 503
+Серверна дія завершилася винятком: ModelTimeoutError: Модель не відповіла за 0 мс
+    at [90m/workspaces/ai-project-practice-2/[39mtests/helpers/model.ts:11:36
+    at askModel [90m(/workspaces/ai-project-practice-2/[39mlib/ai/model.ts:66:26[90m)[39m
+    at generateDraftFromNoteAction [90m(/workspaces/ai-project-practice-2/[39mapp/editor/ai-actions.ts:23:23[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at submit [90m(/workspaces/ai-project-practice-2/[39mtests/helpers/submit.ts:13:20[90m)[39m
+    at [90m/workspaces/ai-project-practice-2/[39mtests/ai-article-draft.test.ts:153:20
+    at [90mfile:///workspaces/ai-project-practice-2/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-hooks.js:752:20
+
+stderr | tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т7 без ключа: функція недоступна (503), застосунок не падає
+Серверна дія завершилася винятком: ModelNotConfiguredError: Ключ провайдера моделі не задано
+    at askModel [90m(/workspaces/ai-project-practice-2/[39mlib/ai/model.ts:65:27[90m)[39m
+    at generateDraftFromNoteAction [90m(/workspaces/ai-project-practice-2/[39mapp/editor/ai-actions.ts:23:23[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at submit [90m(/workspaces/ai-project-practice-2/[39mtests/helpers/submit.ts:13:20[90m)[39m
+    at [90m/workspaces/ai-project-practice-2/[39mtests/ai-article-draft.test.ts:163:20
+    at [90mfile:///workspaces/ai-project-practice-2/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-hooks.js:752:20
+
+ ❯ tests/ai-article-draft.test.ts (7 tests | 7 failed) 4241ms
+   × функція на базі моделі: генерація чернетки статті лору за нотаткою > Т1 невалідний формат: кожен із дефектів Д1–Д6 — одна повторна спроба, потім 503 і жодного запису 1563ms
+     → expected +0 to be 503 // Object.is equality
+   × функція на базі моделі: генерація чернетки статті лору за нотаткою > Т2 ліміт: після вичерпання ліміту — стан 429, модель не викликається 758ms
+     → expected 201 to be 429 // Object.is equality
+   × функція на базі моделі: генерація чернетки статті лору за нотаткою > Т3 недоступність: провайдер не відповідає — відмова 503 з поясненням, жодного запису 350ms
+     → expected +0 to be 503 // Object.is equality
+   × функція на базі моделі: генерація чернетки статті лору за нотаткою > Т4 зловмисний ввід: нотатка не потрапляє в інструкцію, а відповідь, що виконала її, відхиляється 350ms
+     → expected +0 to be 503 // Object.is equality
+   × функція на базі моделі: генерація чернетки статті лору за нотаткою > Т5 надто довгий ввід: відхиляється з кодом 400 до звернення до моделі 592ms
+     → expected 201 to be 400 // Object.is equality
+   × функція на базі моделі: генерація чернетки статті лору за нотаткою > Т6 таймаут: запит має явний таймаут менший за 300 с; після таймауту — 503 319ms
+     → expected +0 to be 503 // Object.is equality
+   × функція на базі моделі: генерація чернетки статті лору за нотаткою > Т7 без ключа: функція недоступна (503), застосунок не падає 306ms
+     → expected +0 to be 503 // Object.is equality
+ ✓ tests/wiki.test.ts (5 tests) 2584ms
+   ✓ спільна вікі світу > після публікації редактором стаття з'являється у каталозі опублікованих  857ms
+   ✓ спільна вікі світу > завантаження нової ілюстрації перезаписує посилання на файл у статті  329ms
+   ✓ спільна вікі світу > видалення фракції каскадно прибирає її мітку з прив'язаних статей  416ms
+   ✓ спільна вікі світу > прийняття скарги повертає статтю в чернетки і закриває всі скарги на неї  700ms
+ ✓ tests/db-articles.test.ts (5 tests) 2023ms
+   ✓ статті та фракції вікі в базі даних Supabase > створена чернетка статті читається назад із бази за id  658ms
+   ✓ статті та фракції вікі в базі даних Supabase > видалена стаття не знаходиться в базі  439ms
+   ✓ статті та фракції вікі в базі даних Supabase > оновлення статусу статті на «опубліковано» додає її у видачу каталогу  329ms
+   ✓ статті та фракції вікі в базі даних Supabase > зв'язок «багато до багатьох» між статтею і фракцією зберігається та каскадно очищується  546ms
+ ✓ tests/actions-articles.test.ts (4 tests) 1466ms
+   ✓ точки доступу: статті вікі > успішний виклик: співавтор створює чернетку статті, і вона є в базі  745ms
+   ✓ точки доступу: статті вікі > чужий запис: акаунт Б не бачить і не видаляє чернетку статті акаунта А  632ms
+ ✓ tests/smoke.test.ts (1 test) 233ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т1 невалідний формат: кожен із дефектів Д1–Д6 — одна повторна спроба, потім 503 і жодного запису
+AssertionError: expected +0 to be 503 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 503[39m
+[31m+ 0[39m
+
+ ❯ tests/ai-article-draft.test.ts:106:29
+    104|       const result = await submit(generateDraftFromNoteAction, { note:…
+    105|       if (result.id) createdArticleIds.push(result.id);
+    106|       expect(result.status).toBe(503);
+       |                             ^
+    107|       expect(sentToModel).toHaveLength(2);
+    108|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т2 ліміт: після вичерпання ліміту — стан 429, модель не викликається
+AssertionError: expected 201 to be 429 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 429[39m
+[31m+ 201[39m
+
+ ❯ tests/ai-article-draft.test.ts:117:27
+    115|     const result = await submit(generateDraftFromNoteAction, { note: N…
+    116|     if (result.id) createdArticleIds.push(result.id);
+    117|     expect(result.status).toBe(429);
+       |                           ^
+    118|     expect(sentToModel).toHaveLength(0);
+    119|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т3 недоступність: провайдер не відповідає — відмова 503 з поясненням, жодного запису
+AssertionError: expected +0 to be 503 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 503[39m
+[31m+ 0[39m
+
+ ❯ tests/ai-article-draft.test.ts:125:27
+    123|     const result = await submit(generateDraftFromNoteAction, { note: N…
+    124|     if (result.id) createdArticleIds.push(result.id);
+    125|     expect(result.status).toBe(503);
+       |                           ^
+    126|     expect(result.message).toBeTruthy();
+    127|     expect(await listArticlesByTitle(DEFECT_TITLE)).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т4 зловмисний ввід: нотатка не потрапляє в інструкцію, а відповідь, що виконала її, відхиляється
+AssertionError: expected +0 to be 503 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 503[39m
+[31m+ 0[39m
+
+ ❯ tests/ai-article-draft.test.ts:136:27
+    134|     const result = await submit(generateDraftFromNoteAction, { note: m…
+    135|     if (result.id) createdArticleIds.push(result.id);
+    136|     expect(result.status).toBe(503);
+       |                           ^
+    137|     expect(sentToModel[0]?.system).toBeTruthy();
+    138|     expect(sentToModel[0]?.system).not.toContain("Ігноруй");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т5 надто довгий ввід: відхиляється з кодом 400 до звернення до моделі
+AssertionError: expected 201 to be 400 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 400[39m
+[31m+ 201[39m
+
+ ❯ tests/ai-article-draft.test.ts:146:27
+    144|     const result = await submit(generateDraftFromNoteAction, { note: "…
+    145|     if (result.id) createdArticleIds.push(result.id);
+    146|     expect(result.status).toBe(400);
+       |                           ^
+    147|     expect(result.fieldErrors?.note).toBeTruthy();
+    148|     expect(sentToModel).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т6 таймаут: запит має явний таймаут менший за 300 с; після таймауту — 503
+AssertionError: expected +0 to be 503 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 503[39m
+[31m+ 0[39m
+
+ ❯ tests/ai-article-draft.test.ts:155:27
+    153|     const result = await submit(generateDraftFromNoteAction, { note: N…
+    154|     if (result.id) createdArticleIds.push(result.id);
+    155|     expect(result.status).toBe(503);
+       |                           ^
+    156|     const timeout = sentToModel[0]?.timeoutMs ?? 0;
+    157|     expect(timeout).toBeGreaterThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  tests/ai-article-draft.test.ts > функція на базі моделі: генерація чернетки статті лору за нотаткою > Т7 без ключа: функція недоступна (503), застосунок не падає
+AssertionError: expected +0 to be 503 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 503[39m
+[31m+ 0[39m
+
+ ❯ tests/ai-article-draft.test.ts:165:27
+    163|     const result = await submit(generateDraftFromNoteAction, { note: N…
+    164|     if (result.id) createdArticleIds.push(result.id);
+    165|     expect(result.status).toBe(503);
+       |                           ^
+    166|   });
+    167| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  7 failed | 15 passed (22)
+   Start at  19:20:00
+   Duration  12.47s (transform 194ms, setup 642ms, collect 166ms, tests 10.55s, environment 1ms, prepare 341ms)
+
