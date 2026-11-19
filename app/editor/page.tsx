@@ -1,3 +1,4 @@
+import { generateDraftFromNoteAction } from "./ai-actions";
 import Link from "next/link";
 import { ActionForm } from "@/components/action-form";
 import { db } from "@/lib/data/db/client";
@@ -63,7 +64,41 @@ export default async function EditorPage() {
           </p>
         </div>
 
-        <ActionForm action={saveDraftAction} className="space-y-4">
+        
+      {/* AI Draft Generator Block (PR6) */}
+      <section className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+        <h2 className="text-base font-semibold text-gray-900">
+          Автоматична генерація чернетки за нотаткою (Ф8)
+        </h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Опишіть ідею статті в 1–3 реченнях — модель сформує заголовок, категорію, текст лору та підбере фракції зі списку.
+        </p>
+        <ActionForm action={generateDraftFromNoteAction} className="mt-3 space-y-3">
+          <div>
+            <label htmlFor="ai-note" className="block text-sm font-medium text-gray-700">
+              Нотатка або ідея статті (10–1000 символів)
+            </label>
+            <textarea
+              id="ai-note"
+              name="note"
+              rows={3}
+              maxLength={1000}
+              required
+              placeholder="Наприклад: Опиши давню гірську фортецю Цитадель Північного Перевалу, яку охороняють Вартові Перевалу..."
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          >
+            Згенерувати чернетку за нотаткою (Ф8)
+          </button>
+        </ActionForm>
+      </section>
+      {/* End AI Draft Generator Block */}
+
+      <ActionForm action={saveDraftAction} className="space-y-4">
           <div className="space-y-1">
             <label className="text-sm font-medium">Заголовок статті (Ф3)</label>
             <input
