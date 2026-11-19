@@ -1,15 +1,15 @@
-// Спільне налаштування тестів (практична робота 5). Не змінюйте цей файл.
-// Перед кожним тестом — вхід акаунтом А. Тест, якому потрібен акаунт Б, викликає signInAs("B").
-// revalidatePath і revalidateTag працюють лише всередині Next.js, тому в тестах вони нічого не роблять.
-
+// Спільне налаштування тестів (практична робота 6). Не змінюйте цей файл.
 import { beforeEach, vi } from "vitest";
+import { modelDisabled } from "./helpers/model";
 import { signInAs } from "./helpers/users";
-
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
   revalidateTag: vi.fn(),
 }));
-
 beforeEach(async () => {
+  vi.unstubAllEnvs();
+  vi.stubEnv("AI_USER_LIMIT_PER_HOUR", "1000000");
+  vi.stubEnv("AI_APP_LIMIT_PER_DAY", "1000000");
+  modelDisabled();
   await signInAs("A");
 });
