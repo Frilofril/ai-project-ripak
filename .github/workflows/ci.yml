@@ -1,5 +1,3 @@
-# Конвеєр перевірок (практична робота 7). Не змінюйте назви перевірок lint, test, secrets:
-# на них посилається правило захисту гілки main (крок 11 методичних вказівок).
 name: ci
 on:
   push:
@@ -47,11 +45,11 @@ jobs:
           PATTERN='AIza[0-9A-Za-z_-]{35}|gsk_[0-9A-Za-z]{20,}|sb_secret_[0-9A-Za-z_-]{10,}|sbp_[0-9a-f]{20,}|eyJ[0-9A-Za-z_-]{10,}[.]eyJ[0-9A-Za-z_-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
           FOUND=0
           if git grep -lE "$PATTERN" -- . ':(exclude)package-lock.json'; then
-            echo "::error::У файлах вище є рядки, схожі на ключі. Приберіть їх і відкличте ключ (крок 6 методичних вказівок)."
+            echo "::error::У файлах вище є рядки, схожі на ключі."
             FOUND=1
           fi
           if git ls-files | grep -E '(^|/)[.]env' | grep -vE '(^|/)[.]env[.]example$'; then
-            echo "::error::У репозиторії є файл .env (вище). Видаліть його з репозиторію і відкличте ключі з нього."
+            echo "::error::У репозиторії є файл .env."
             FOUND=1
           fi
           if [ "$FOUND" = "1" ]; then exit 1; fi
