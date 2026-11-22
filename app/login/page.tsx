@@ -127,7 +127,7 @@ export default async function LoginPage({
               <ActionForm action={signUpAction} className="space-y-3.5">
                 <input type="hidden" name="next" value={next} />
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-gray-700">Ім'я та прізвище</label>
+                  <label className="text-xs font-medium text-gray-700">Ім&apos;я та прізвище</label>
                   <input
                     name="full_name"
                     required
